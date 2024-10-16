@@ -1,0 +1,808 @@
+// const char index_html[] PROGMEM = R"rawliteral(
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petpooja WCS Config Tools(1.0.2)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .row label {
+            flex: 1;
+        }
+        .row input[type="radio"] {
+            margin-right: 10px;
+        }
+        .row.hidden {
+            display: none;
+        }
+        .row:last-child {
+            justify-content: center;
+        }
+        button, .manual-button{
+            padding: 10px 20px;
+            background-color:#007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover, .manual-button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .message {
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="row">
+        <label>Step 1: Select Device Mode :</label>
+    </div>
+    
+    <div class="row">
+        <input type="radio" id="receiverMode" name="deviceMode" value="receiver" onclick="handleReceiverMode()">
+        <label for="receiverMode">WCS_Receiver</label>
+        <input type="radio" id="pagerMode" name="deviceMode" value="pager" onclick="handlePagerMode()()">
+        <label for="pagerMode">Pager_Receiver</label>
+        <input type="radio" id="repeaterMode" name="deviceMode" value="repeater" onclick="handleRepeaterMode()">
+        <label for="repeaterMode">Repeater</label>
+        <!-- <input type="radio" id="otaMode" name="deviceMode" value="ota" onclick="handleOtaMode()">
+        <label for="otaMode">OTA</label> -->
+        
+    </div>
+  
+    <div class="row hidden" id="wifiRow">
+        <input type="radio" id="wifiMode" name="deviceMode" value="wifi" onclick="handleWifiMode()">
+        <label for="wifiMode">Wi-Fi (Wireless)</label>
+    </div>
+
+    <div class="row hidden" id="serialRow">
+        <input type="radio" id="serialMode" name="deviceMode" value="serial" onclick="handleSerialMode()">
+        <label for="serialMode">Serial (USB)</label>
+    </div>
+
+    <div class="row hidden" id="OTARow">
+        <input type="radio" id="otaMode" name="deviceMode" value="ota" onclick="handleOtaMode()">
+        <label for="otaMode">OTA</label>
+    </div>
+
+    <div class="row hidden" id="serialRow1">
+        <input type="radio" id="serialMode1" name="deviceMode" value="serial1" onclick="handleSerialMode1()">
+        <label for="serialMode1">Serial (USB)</label>
+    </div>
+
+    <div class="row hidden" id="OTARow1">
+        <input type="radio" id="otaMode1" name="deviceMode" value="ota1" onclick="handleOtaMode1()">
+        <label for="otaMode1">OTA</label>
+    </div>
+
+    <div class="row hidden" id="wifiConfig">
+        <label>Step 2: Wifi Credentials :</label>
+    </div>
+    
+    <div class="row hidden" id="wifiConfig1">
+        <label for="wifiSSID">Wi-Fi Name (SSID):</label>
+        <input type="text" id="wifiSSID" name="wifiSSID">
+        <span class="error" id="ssidError"></span>
+    </div>
+    <div class="row hidden" id="wifiConfig2">
+        <label for="wifiPassword">Wi-Fi Password:</label>
+        <input type="text" id="wifiPassword" name="wifiPassword">
+        <span class="error" id="passwordError"></span>
+    </div>
+
+    <div class="row hidden" id="serverConfig">
+        <label>Step 3: IP Address and Server Data :</label>    
+    </div>  
+
+    <div class="row hidden" id="serverConfig1">
+        <label for="serverIP">Server IP Address / Device Name :</label>
+        <input type="text" id="serverIP" name="serverIP">
+        <span class="error" id="ipError"></span>
+    </div>
+
+    <div class="row hidden" id="serverConfig2">
+        <label for="serverPort">Server Port :</label>
+        <input type="text" id="serverPort" name="serverPort" value="3000">
+        <span class="error" id="portError"></span>
+    </div>
+
+    <div class="row hidden" id="serverConfig3">
+        <label for="serverLink">Server Link :</label>
+        <input type="text" id="serverLink" name="serverLink" value="/petpooja_server/inner_waiter_calling">
+        <span class="error" id="linkError"></span>
+    </div>
+    
+    <div class="row hidden" id="otaConfig">
+        <label>Step 2: OTA Wifi Credentials :</label>
+    </div>
+    
+    <div class="row hidden" id="otaConfig1">
+        <label for="otaSSID">OTA Wi-Fi Name :</label>
+        <input type="text" id="otaSSID" name="otaSSID">
+        <span class="error" id="oSsidError"></span>
+    </div>
+
+    <div class="row hidden" id="otaConfig2">
+        <label for="otaPassword">OTA Wi-Fi Password:</label>
+        <input type="text" id="otaPassword" name="otaPassword">
+        <span class="error" id="oPassError"></span>
+    </div>
+
+    <div class="row hidden" id="otaConfig3">
+        <label>Step 3: OTA Data :</label>    
+    </div>  
+
+    <div class="row hidden" id="otaConfig4">
+        <label for="otaServer">Server Name :</label>
+        <input type="text" id="otaServer" name="otaServer" value="https://petpooja-app-builds.s3.ap-south-1.amazonaws.com/">
+        <span class="error" id="oServerError"></span>
+    </div>
+    
+    <div class="row hidden" id="otaConfig5">
+        <label for="otaDevice">Device :</label>
+        <input type="text" id="otaDevice" name="otaDevice" value="wcd/">
+        <span class="error" id="oDeviceError"></span>
+    </div>
+   
+    <div class="row hidden" id="otaConfig6">
+        <label for="otaFile">Bin File :</label>
+        <input type="text" id="otaFile" name="otaFile">
+        <span class="error" id="oFileError"></span>
+    </div>
+
+    
+    <!-- <div class="row hidden" id="otaConfig7">
+        <label for="otaServer1">Server Name :</label>
+        <input type="text" id="otaServer1" name="otaServer1" value="https://petpooja-app-builds.s3.ap-south-1.amazonaws.com/">
+        <span class="error" id="oServerError"></span>
+    </div>
+
+    <div class="row hidden" id="otaConfig8">
+        <label for="otaDevice1">Device :</label>
+        <input type="text" id="otaDevice1" name="otaDevice1" value="pager/">
+        <span class="error" id="oDeviceError"></span>
+    </div> -->
+
+    <div class="row hidden" id="verifyButtonRow">
+        <button id="verifyButton" onclick="verificationMode()">Verify</button>
+    </div>
+
+    <div class="row hidden" id="resetButtonRow">
+        <button id="uploadButton" onclick="uploadModes()">Upload</button>
+    </div>
+    <div class="row">
+        <a href="https://docs.google.com/document/d/YOUR_DOCUMENT_ID_HERE" target="_blank" class="manual-button">View User Manual</a>
+    </div>
+    <div class="message" id="message">
+        Data stored to ESP
+    </div>
+</div>
+
+<script>
+    const wifiMode = document.getElementById('wifiMode');
+    const serialMode = document.getElementById('serialMode');
+    const serialMode1 = document.getElementById('serialMode1');
+    const receiverMode = document.getElementById('receiverMode');
+    const repeaterMode = document.getElementById('repeaterMode');
+    const otaMode = document.getElementById('otaMode');
+    const otaMode1 = document.getElementById('otaMode1');   
+    const pagerMode = document.getElementById('pagerMode');
+
+    const wifiRow = document.getElementById('wifiRow');
+    const serialRow = document.getElementById('serialRow');
+    const OTARow = document.getElementById('OTARow');
+    const serialRow1 = document.getElementById('serialRow1');
+    const OTARow1 = document.getElementById('OTARow1');
+    const resetButtonRow = document.getElementById('resetButtonRow');
+    const message = document.getElementById('message');
+    const verifyButtonRow = document.getElementById('verifyButtonRow');
+
+    const wifiConfig = document.getElementById('wifiConfig');
+    const wifiConfig1 = document.getElementById('wifiConfig1');
+    const wifiConfig2 = document.getElementById('wifiConfig2');
+    const serverConfig = document.getElementById('serverConfig');
+    const serverConfig1 = document.getElementById('serverConfig1');
+    const serverConfig2 = document.getElementById('serverConfig2');
+    const serverConfig3 = document.getElementById('serverConfig3');
+
+    const otaConfig  = document.getElementById('otaConfig');
+    const otaConfig1 = document.getElementById('otaConfig1');
+    const otaConfig2 = document.getElementById('otaConfig2');
+    const otaConfig3 = document.getElementById('otaConfig3');
+    const otaConfig4 = document.getElementById('otaConfig4');
+    const otaConfig5 = document.getElementById('otaConfig5');
+    const otaConfig6 = document.getElementById('otaConfig6');
+    const otaConfig7 = document.getElementById('otaConfig7');
+    const otaConfig8 = document.getElementById('otaConfig8');
+
+    const ssidError = document.getElementById('ssidError');
+    const passwordError = document.getElementById('passwordError');
+    const ipError = document.getElementById('ipError');
+    const portError = document.getElementById('portError');
+    const linkError = document.getElementById('linkError');
+    const oSsidError = document.getElementById('oSsidError');
+    const oPassError = document.getElementById('oPassError');
+    const oServerError = document.getElementById('oServerError');
+    const oDeviceError = document.getElementById('oDeviceError');
+    const oFileError = document.getElementById('oFileError');
+
+    var sendData = ''
+
+    function fillWifiData(str_data){
+        if(str_data === 1)
+        {
+            wifiConfig.classList.remove('hidden');
+            wifiConfig1.classList.remove('hidden');
+            wifiConfig2.classList.remove('hidden');
+            serverConfig.classList.remove('hidden');
+            serverConfig1.classList.remove('hidden');
+            serverConfig2.classList.remove('hidden');
+            serverConfig3.classList.remove('hidden');
+            verifyButtonRow.classList.remove('hidden');
+        }
+        else
+        {
+            wifiConfig.classList.add('hidden');
+            wifiConfig1.classList.add('hidden');
+            wifiConfig2.classList.add('hidden');
+            serverConfig.classList.add('hidden');
+            serverConfig1.classList.add('hidden');
+            serverConfig2.classList.add('hidden');
+            serverConfig3.classList.add('hidden');
+            verifyButtonRow.classList.add('hidden');
+        }
+    }
+
+    function fillOtaData(str_data1)
+    {
+        if(str_data1 === 1)
+        {
+            otaConfig.classList.remove('hidden');
+            otaConfig1.classList.remove('hidden');
+            otaConfig2.classList.remove('hidden');
+            otaConfig3.classList.remove('hidden');
+            otaConfig4.classList.remove('hidden');
+            otaConfig5.classList.remove('hidden');
+            otaConfig6.classList.remove('hidden');
+            verifyButtonRow.classList.remove('hidden');
+        }
+        else
+        {
+            otaConfig.classList.add('hidden');
+            otaConfig1.classList.add('hidden');
+            otaConfig2.classList.add('hidden');
+            otaConfig3.classList.add('hidden');
+            otaConfig4.classList.add('hidden');
+            otaConfig5.classList.add('hidden');
+            otaConfig6.classList.add('hidden');
+            if(!wifiMode.checked)
+            {
+                verifyButtonRow.classList.add('hidden');
+            }
+        }
+    }
+    function fillOtaData1(str_data2)
+    {
+        if(str_data2 === 1)
+        {
+            otaConfig.classList.remove('hidden');
+            otaConfig1.classList.remove('hidden');
+            otaConfig2.classList.remove('hidden');
+            otaConfig3.classList.remove('hidden');
+            otaConfig4.classList.remove('hidden');
+            otaConfig7.classList.remove('hidden');
+            otaConfig8.classList.remove('hidden');
+            verifyButtonRow.classList.remove('hidden');
+        }
+        else
+        {
+            otaConfig.classList.add('hidden');
+            otaConfig1.classList.add('hidden');
+            otaConfig2.classList.add('hidden');
+            otaConfig3.classList.add('hidden');
+            otaConfig4.classList.add('hidden');
+            otaConfig7.classList.add('hidden');
+            otaConfig8.classList.add('hidden');
+            if(!wifiMode.checked)
+            {
+                verifyButtonRow.classList.add('hidden');
+            }
+        }
+    }
+
+    function verificationMode()
+    {
+        if(wifiMode.checked)
+        {
+            const ssid = document.getElementById('wifiSSID').value;
+            const password = document.getElementById('wifiPassword').value;
+            const IP = document.getElementById('serverIP').value;
+            const port = document.getElementById('serverPort').value;
+            const link = document.getElementById('serverLink').value;
+            let valid = true;
+
+            ssidError.textContent = '';
+            passwordError.textContent = '';
+            ipError.textContent = '';
+            portError.textContent = '';
+            linkError.textContent = '';
+
+            if (!ssid) 
+            {
+                ssidError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                ssidError.textContent = '';
+            }
+
+            if (!password) 
+            {
+                passwordError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                passwordError.textContent = '';
+            }
+
+            if (!IP) 
+            {
+                ipError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                ipError.textContent = '';
+            }
+
+            if (!port) 
+            {
+                portError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                portError.textContent = '';
+            }
+
+            if (!link) 
+            {
+                linkError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                linkError.textContent = '';
+            }
+            
+            if (valid) 
+            {
+                sendData = '';
+                sendData = `W\v${ssid}\t${password}\n${IP}:${port}${link}\r`;
+                console.log(sendData);
+                resetButtonRow.classList.remove('hidden');
+            }
+        }
+        else if(otaMode.checked)
+        {
+            const otaSsid = document.getElementById('otaSSID').value;
+            const otaPassword = document.getElementById('otaPassword').value;
+            const otaServer = document.getElementById('otaServer').value;
+            const otaDevice = document.getElementById('otaDevice').value;
+            const otaFile = document.getElementById('otaFile').value;
+            let valid = true;
+            
+            oSsidError.textContent = '';
+            oPassError.textContent = '';
+            oServerError.textContent = '';
+            oDeviceError.textContent = '';
+            oFileError.textContent = '';
+
+            if (!otaSsid) 
+            {
+                oSsidError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oSsidError.textContent = '';
+            }
+
+            if (!otaPassword) 
+            {
+                oPassError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oPassError.textContent = '';
+            }
+            
+            if (!otaServer) 
+            {
+                oServerError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oServerError.textContent = '';
+            }
+
+            if (!otaDevice) 
+            {
+                oDeviceError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oDeviceError.textContent = '';
+            }
+            
+            if (!otaFile) 
+            {
+                oFileError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oFileError.textContent = '';
+            }
+
+            if (valid) 
+            {
+                sendData = '';
+                sendData = `O\v${otaSsid}\t${otaPassword}\n${otaServer}${otaDevice}${otaFile}\r`;
+                console.log(sendData);
+                resetButtonRow.classList.remove('hidden');
+            }
+        }
+        else if(otaMode1.checked)
+        {
+            const otaSsid = document.getElementById('otaSSID').value;
+            const otaPassword = document.getElementById('otaPassword').value;
+            const otaServer1 = document.getElementById('otaServer1').value;
+            const otaDevice1 = document.getElementById('otaDevice1').value;
+            const otaFile = document.getElementById('otaFile').value;
+            let valid = true;
+            
+            oSsidError.textContent = '';
+            oPassError.textContent = '';
+            oServerError.textContent = '';
+            oDeviceError.textContent = '';
+            oFileError.textContent = '';
+
+            if (!otaSsid) 
+            {
+                oSsidError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oSsidError.textContent = '';
+            }
+
+            if (!otaPassword) 
+            {
+                oPassError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oPassError.textContent = '';
+            }
+            
+            if (!otaServer1) 
+            {
+                oServerError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oServerError.textContent = '';
+            }
+
+            if (!otaDevice1) 
+            {
+                oDeviceError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oDeviceError.textContent = '';
+            }
+            
+            if (!otaFile) 
+            {
+                oFileError.textContent = 'Required';
+                valid = false;
+            }
+            else
+            {
+                oFileError.textContent = '';
+            }
+
+            if (valid) 
+            {
+                sendData = '';
+                sendData = `O\v${otaSsid}\t${otaPassword}\n${otaServer1}${otaDevice1}${otaFile}\r`;
+                console.log(sendData);
+                resetButtonRow.classList.remove('hidden');
+            }
+        }
+    }
+
+    function handleReceiverMode(){
+        wifiRow.classList.remove('hidden');
+        serialRow.classList.remove('hidden');
+        serialRow1.classList.add('hidden');
+        OTARow.classList.remove('hidden');
+        OTARow1.classList.add("hidden");
+        wifiMode.disabled = false;
+        serialMode.disabled = false;
+        serialMode1.disabled = true;
+        receiverMode.disabled = true;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = false;
+        otaMode.disabled = false;
+        otaMode1.disabled=true;
+        resetButtonRow.classList.add('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(0)
+        fillOtaData1(0)
+    }
+
+    function handleRepeaterMode(){
+        wifiRow.classList.add('hidden');
+        serialRow.classList.add('hidden');
+        serialRow1.classList.add('hidden');
+        OTARow.classList.add('hidden');
+        OTARow1.classList.add("hidden");
+        wifiMode.disabled = true;
+        serialMode.disabled = true;
+        serialMode1.disabled = true;
+        receiverMode.disabled = false;
+        repeaterMode.disabled = true;
+        pagerMode.disabled = false;
+        otaMode.disabled = false;
+        resetButtonRow.classList.remove('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(0)
+        fillOtaData1(0)
+    }
+    function handlePagerMode(){
+        wifiRow.classList.add('hidden');
+        serialRow.classList.add('hidden');
+        serialRow1.classList.remove('hidden');
+        OTARow.classList.add('hidden');
+        OTARow1.classList.remove("hidden");
+        wifiMode.disabled = true;
+        serialMode.disabled = true;
+        serialMode1.disabled = false;
+        receiverMode.disabled = false;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = true;
+        otaMode.disabled = false;
+        otaMode1.disabled=false;
+        resetButtonRow.classList.remove('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(0)
+        fillOtaData1(0)
+    }
+
+    function handleWifiMode(){
+        OTARow.classList.remove('hidden');
+        OTARow1.classList.add("hidden");
+        wifiMode.disabled = true;
+        serialMode.disabled = false;
+        receiverMode.disabled = true;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = false;
+        otaMode.disabled = false;
+        otaMode1.disabled=true;
+        resetButtonRow.classList.add('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(1)
+        fillOtaData(0)
+        fillOtaData1(0)
+    }
+
+    function handleSerialMode(){
+        OTARow.classList.remove('hidden');
+        OTARow1.classList.add("hidden");
+        wifiMode.disabled = false;
+        serialMode.disabled = true;
+        receiverMode.disabled = true;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = false;
+        otaMode.disabled = false;
+        otaMode1.disabled=true;
+        resetButtonRow.classList.remove('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(0)
+        fillOtaData1(0)
+    }
+    function handleSerialMode1(){
+        wifiRow.classList.add('hidden');
+        serialRow.classList.add('hidden');
+        OTARow.classList.add('hidden');
+        OTARow1.classList.remove("hidden");
+        wifiMode.disabled = true;
+        serialMode.disabled = true;
+        serialMode1.disabled=true;
+        receiverMode.disabled = false;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = true;
+        otaMode.disabled = false;
+        otaMode1.disabled=false;
+        resetButtonRow.classList.remove('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(0)
+        fillOtaData1(0)
+    }
+    function handleOtaMode(){
+        wifiRow.classList.remove('hidden');
+        serialRow.classList.remove('hidden');
+        OTARow.classList.remove('hidden');
+        OTARow1.classList.add("hidden");
+        wifiMode.disabled = false;
+        serialMode.disabled = false;
+        receiverMode.disabled = true;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = false;
+        otaMode.disabled = true;
+        otaMode1.disabled=true;
+        resetButtonRow.classList.add('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(1)
+        fillOtaData1(0)
+    }
+    function handleOtaMode1(){
+        wifiRow.classList.add('hidden');
+        serialRow.classList.add('hidden');
+        serialRow1.classList.remove('hidden');
+        OTARow.classList.add('hidden');
+        OTARow1.classList.remove("hidden");
+        wifiMode.disabled = true;
+        serialMode.disabled = true;
+        serialMode1.disabled = false;
+        receiverMode.disabled = false;
+        repeaterMode.disabled = false;
+        pagerMode.disabled = true;
+        otaMode.disabled = true;
+        otaMode1.disabled = true;
+        resetButtonRow.classList.add('hidden');
+        if(message.style.display != 'none')
+        {
+          message.style.display = 'none';
+        }
+        fillWifiData(0)
+        fillOtaData(0)
+        fillOtaData1(1)
+    }
+    function uploadModes(){
+        const selectedMode = document.querySelector('input[name="deviceMode"]:checked').value;
+        if(selectedMode == "serial")
+        {
+            sendToESP("S");
+        }
+        else if(selectedMode == "wifi")
+        {
+            sendToESP(sendData);
+        }
+        else if(selectedMode == "repeater")
+        {
+            sendToESP("R");
+        }
+        else if(selectedMode == "serial1")
+        {
+            sendToESP("P");
+        }
+        else if(selectedMode == "ota")
+        {
+            sendToESP(sendData);
+        }
+        else if(selectedMode == "ota1")
+        {
+            sendToESP(sendData);
+        }
+    }
+
+   function sendToESP(data) {
+    console.log(data);
+    fetch('/mode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `data=${encodeURIComponent(data)}`
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('Success:', data);
+        showMessage();
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+
+
+    function showMessage() {
+        message.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
+// )rawliteral";
